@@ -88,7 +88,7 @@ class QuestionApiView(View):
 
         title = cleaned_data.get('title')
         if title:
-            query_params['title__contains'] = title.lower()
+            query_params['title__icontains'] = title
 
         return query_params
 
