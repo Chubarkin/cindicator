@@ -55,40 +55,42 @@ class QuestionApiView(View):
 
         form = QuestionFilterForm(request.GET)
         if form.is_valid():
-            query_params = self._get_params(form.cleaned_data)
+            query_params, exclude_params = self._get_params(form.cleaned_data, request.user)
             answers = Prefetch(
                 'answer_set',
                 queryset=Answer.objects.filter(user=request.user),
                 to_attr='user_answer')
             questions = Question.objects\
-                .prefetch_related(answers).filter(**query_params)
+                .prefetch_related(answers)\
+                .filter(**query_params)\
+                .exclude(**exclude_params)
             data = QuestionJsonSerializer.serialize(questions)
             return responses.SuccessJsonResponse(data)
 
         return responses.ValidationErrorJsonResponse(form.errors)
 
     @staticmethod
-    def _get_params(cleaned_data):
-        query_params = {}
+    def _get_params(cleaned_data, user):
+        filter_params = {}
+        exclude_params = {}
         active = cleaned_data.get('active')
         if active:
             now = timezone.now()
             if active == QuestionFilterForm.TRUE:
-                query_params['end_time__gte'] = now
+                filter_params['end_time__gte'] = now
             else:
-                query_params['end_time__lt'] = now
+                filter_params['end_time__lt'] = now
 
         has_answer = cleaned_data.get('has_answer')
         if has_answer:
             if has_answer == QuestionFilterForm.TRUE:
-                has_answer = True
+                filter_params['answer__user'] = user
             else:
-                has_answer = False
-            query_params['real_answer__isnull'] = not has_answer
+                exclude_params['answer__user'] = user
 
         title = cleaned_data.get('title')
         if title:
-            query_params['title__icontains'] = title
+            filter_params['title__icontains'] = title
 
-        return query_params
+        return filter_params, exclude_params
 

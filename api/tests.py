@@ -194,13 +194,20 @@ class TestQuestionApiView(TestCase):
     def test__get_params(self, now):
         now.return_value = 'now'
         cleaned_data = {'active': 'true', 'has_answer': 'true', 'title': 'TesT'}
-        params = QuestionApiView._get_params(cleaned_data)
-        self.assertEqual(params, {'end_time__gte': 'now', 'real_answer__isnull': False, 'title__contains': 'test'})
+        filter_params, exclude_params = QuestionApiView._get_params(cleaned_data, self.user)
+        self.assertEqual(filter_params, {
+            'end_time__gte': 'now',
+            'answer__user': self.user,
+            'title__icontains': 'TesT'
+        })
+        self.assertEqual(exclude_params, {})
 
         cleaned_data = {'active': 'false', 'has_answer': 'false'}
-        params = QuestionApiView._get_params(cleaned_data)
-        self.assertEqual(params, {'end_time__lt': 'now', 'real_answer__isnull': True})
+        filter_params, exclude_params = QuestionApiView._get_params(cleaned_data, self.user)
+        self.assertEqual(filter_params, {'end_time__lt': 'now'})
+        self.assertEqual(exclude_params, {'answer__user': self.user})
 
         cleaned_data = {}
-        params = QuestionApiView._get_params(cleaned_data)
-        self.assertEqual(params, {})
+        filter_params, exclude_params = QuestionApiView._get_params(cleaned_data, self.user)
+        self.assertEqual(filter_params, {})
+        self.assertEqual(exclude_params, {})
