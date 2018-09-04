@@ -15,8 +15,8 @@ class Question(models.Model):
     end_time = models.DateTimeField('End time')
 
     def get_user_answer(self, user=None):
-        if getattr(self, 'user_answer', None):
-            return self.user_answer[0]
+        if hasattr(self, 'user_answer'):
+            return self.user_answer[0] if self.user_answer else None
 
         user_answer = self.answer_set.filter(user=user).first()
         return user_answer
