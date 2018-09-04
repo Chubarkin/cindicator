@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cindicator',
-    'questionnaire'
+    'project',
+    'questionnaire',
+    'api'
 ]
 
 MIDDLEWARE = [
@@ -51,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'cindicator.urls'
+ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'cindicator.wsgi.application'
+WSGI_APPLICATION = 'project.wsgi.application'
 
 
 # Database
