@@ -55,14 +55,14 @@ class QuestionApiView(View):
 
         form = QuestionFilterForm(request.GET)
         if form.is_valid():
-            query_params, exclude_params = self._get_params(form.cleaned_data, request.user)
+            filter_params, exclude_params = self._get_params(form.cleaned_data, request.user)
             answers = Prefetch(
                 'answer_set',
                 queryset=Answer.objects.filter(user=request.user),
                 to_attr='user_answer')
             questions = Question.objects\
                 .prefetch_related(answers)\
-                .filter(**query_params)\
+                .filter(**filter_params)\
                 .exclude(**exclude_params)
             data = QuestionJsonSerializer.serialize(questions)
             return responses.SuccessJsonResponse(data)
